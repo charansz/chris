@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Holidaze - Find Your X'Mas Friend</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/CSS/styles.css" />
+  </head>
+  <body>
+
+    <!-- <div class="nodisplay" id="pre-loader"></div> -->
+    <div class="mainContainer">
+        
+        <div class="alert alert2 alert-danger">
+            Check the entered values!
+        </div>
+        <div class="innerContainer mt-3">
+              <input
+                type="number"
+                class="form-control my-4"
+                id="phone_num"
+                placeholder="Mobile Number"
+                name="studentNum"
+                required
+              />
+              <input
+              type="number"
+              class="form-control my-4"
+              id="year"
+              placeholder="Year"
+              name="studentYear"
+              required
+            />
+            <div class="d-flex justify-content-center align-items-center">
+                <button type="submit" class="btn btn-primary" id="match_btn">
+                    Find Your Match
+                </button>
+            </div>
+        </div>
+    </div>
+   
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-firestore.js"></script>
+    <script>
+      let track,num_track,current_doc_id,current_doc_year,matchname,matchyear,matched_check;
+
+      //****************************************************
+
+      // Place firebaseConfig here
+
+      //********************************************
+
+
+      
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
+
+      var db = firebase.firestore();
+      const matchBtn = document.querySelector("#match_btn");
+
+      matchBtn.addEventListener('click', () => {
+        let student_num = String($("#phone_num").val());
+        let student_year = String($("#year").val());
+
+        if(student_num.length!=10 || student_num.includes("-") || parseInt(student_year) <= 0 || parseInt(student_year) > 4 ){
+          $('.alert2').show();
+        }
+        else{
+          if (window.matchMedia('(max-width: 576px)').matches) {
+              $(".mainContainer").css({
+                  'background-image' : 'url(/assets/findmob.jpg)',
+                  'background-repeat': 'no-repeat',
+                  'background-size': 'cover',
+                  'background-position': 'center',
+              });
+              }
+              else {
+              $(".mainContainer").css({
+                  'background-image' : 'url(/assets/findweb.jpg)',
+                  'background-repeat': 'no-repeat',
+                  'background-size': 'cover',
+                  'background-position': 'center',
+              });
+              }
+              $("#phone_num").addClass("hide");
+              $("#year").addClass("nodisplay");
+              $("#match_btn").addClass("nodisplay");
+
+              var matchName = document.createElement("h4");
+              var matchYear = document.createElement("h4");
+              var matchContainer = document.createElement("div");
+              $(matchName).css({
+                  "text-align":"center",
+                  "font-size":"30px",
+                  "font-weight":"bold",
+                  "color" : "#fff"
+              });
+              $(matchYear).css({
+                  "text-align":"center",
+                  "font-size":"25px",
+                  "font-weight":"bold",
+                  "color" : "#fff"
+              });
+
+              $(matchContainer).append(matchName,matchYear);
+              $(matchContainer).css({
+                  "background-color": "#f72c2c",
+                  "opacity" : "0.5",
+                  "padding" : "10px 15px 10px 15px"
+              })
+              $(".innerContainer").append(matchContainer);
+           }
+
+          db.collection(student_year).get().then((querySnapshot) => {
+              for(let i in querySnapshot.docs){
+                const doc = querySnapshot.docs[i]
+                if(doc.data().number == student_num){
+                  matchname = doc.data().matchedToName;
+                  matchyear = doc.data().matchedToYear;
+                  if(matchname == 'test'){
+                    matchName.textContent = "Friends Out Of Stock!"
+                    matchYear.textContent = "Better luck next time!"
+                  }
+                  else{
+                    matchName.textContent = matchname;
+                    matchYear.textContent = "Year : " + matchyear;
+                  }
+                }
+              }
+          });
+      })
+
+
+    </script>
+
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+      integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+      integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>

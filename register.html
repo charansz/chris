@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Holidaze - Find Your X'Mas Friend</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/CSS/styles.css" />
+  </head>
+  <body>
+
+    <div class="mainContainer">
+        <div class="alert alert1 alert-success ">
+            Hola! You have successfully registered, Good luck!
+        </div>
+        <div class="alert alert2 alert-danger">
+            Oops! Something is wrong, check the values again!
+        </div>
+        <div class="alert alert3 alert-danger">
+           Number Already Registered!
+        </div>
+        <div class="innerContainer mt-3">
+            <input
+                  type="text"
+                  class="form-control"
+                  id="student_name"
+                  placeholder="Name"
+                  name="studentName"
+                  required
+                />
+                <input
+                type="number"
+                class="form-control my-3"
+                id="phone_num"
+                placeholder="Mobile Number"
+                name="studentNum"
+                required
+              />
+              <input
+              type="number"
+              class="form-control my-3"
+              id="year"
+              placeholder="Year"
+              name="studentYear"
+              required
+            />
+            <div class="d-flex justify-content-center align-items-center">
+                <button type="submit" class="btn btn-primary" id="match_btn">
+                    REGISTER
+                  </button>
+            </div>
+            
+        </div>
+    </div>
+    <!-- <div class="mainContainer">
+      <div class="container formContainer">
+        <form>
+          <div class="form-group d-flex">
+            <div class="row">
+              <div class="col-lg-2">
+                <label for="student_name" class="nameLabel">Name</label>
+              </div>
+              <div class="col-lg-10">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="student_name"
+                  placeholder="Enter your name"
+                  name="studentName"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+          <div class="form-group d-flex justify-content-end">
+            <label for="phone_num" class="numLabel">Phone Number</label>
+            <input
+              type="number"
+              class="form-control"
+              id="phone_num"
+              placeholder="Enter your phone number"
+              name="studentNum"
+              required
+            />
+          </div>
+          <div class="form-group d-flex">
+            <label for="year" class="yearLabel">Year</label>
+            <input
+              type="number"
+              class="form-control"
+              id="year"
+              placeholder="Enter your year"
+              name="studentYear"
+              required
+            />
+          </div>
+        </form>
+        <button type="submit" class="btn btn-primary" id="match_btn">
+          REGISTER
+        </button>
+      </div> -->
+      <!-- <h3 class="text1">Hello</h3>
+      <h3 class="text2">Hello</h3>
+      <h3 class="text3">Hello</h3> -->
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.17.2/firebase-firestore.js"></script>
+    <script>
+
+      
+     //****************************************************
+
+      // Place firebaseConfig here
+
+      //********************************************
+
+
+
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      firebase.analytics();
+
+      var db = firebase.firestore();
+      const matchBtn = document.querySelector("#match_btn");
+
+      matchBtn.addEventListener("click", () => {
+        let student_name = $("#student_name").val();
+        let student_num = String($("#phone_num").val());
+        let student_year = String($("#year").val());
+
+        if (student_num.length != 10 || student_num.includes("-")) {
+            $('.alert1').hide();
+            $('.alert3').hide();
+            $('.alert2').show();
+        } else {
+            if ((parseInt(student_year) < 5 && parseInt(student_year) > 0)) {
+              let exists = false;
+                db.collection(student_year)
+                .get()
+                .then((querySnapshot) => {
+                  querySnapshot.forEach((doc) => {
+                    if(doc.data().number == student_num){
+                      $('.alert1').hide();
+                      $('.alert2').hide();
+                      $('.alert3').show();
+                      exists = true;
+                    }
+
+                  });
+                  if(exists == false){
+                  db.collection(student_year)
+                      .add({
+                        name: student_name,
+                        number: student_num,
+                        year: student_year,
+                        searched: false,
+                        matched: false,
+                        matchedToName: "test",
+                        matchedToYear: 0,
+                      })
+                    .then((docRef) => {
+                      $('.alert2').hide();
+                      $('.alert3').hide();
+                      $('.alert1').show();
+                    })
+                    .catch((error) => {
+                    });
+                } 
+                })
+                .catch((error) => {
+                console.log("Error getting documents: ", error);
+                });
+                
+            }
+            else {
+                $('.alert1').hide();
+                $('.alert3').hide();
+                $('.alert2').show();
+                
+            }
+
+            window.setTimeout(function(){
+              window.location.reload();
+            },4000);
+        }
+        
+      });
+
+      //   db.collection("1")
+      //     .get()
+      //     .then((querySnapshot) => {
+      //       let x = Math.floor(Math.random() * querySnapshot.docs.length);
+      //       const doc = querySnapshot.docs[x];
+      //       console.log(doc.data().Name);
+      //     })
+      //     .catch((error) => {
+      //       console.log("Error getting documents: ", error);
+      //     });
+    </script>
+
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+      integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+      integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
